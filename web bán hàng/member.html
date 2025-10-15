@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Thành viên nhóm - Galaxy Neon</title>
+<style>
+  :root { --accent: #00b3ff; --gold: 255,215,0; }
+  *{box-sizing:border-box}
+  body{
+    margin:0;padding:80px 50px;min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;gap:40px;
+    background:radial-gradient(circle at 30% 30%, #070712, #000 90%);
+    font-family:"Segoe UI",system-ui,Roboto,"Helvetica Neue",Arial;
+    color:#fff;overflow-x:hidden;
+  }
+
+  .nebula{
+    position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(0,150,255,0.12), transparent 70%),
+      radial-gradient(circle at 80% 80%, rgba(170,0,255,0.14), transparent 70%),
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03), transparent 80%);
+    mix-blend-mode:screen;filter:blur(150px);
+    animation:moveNebula 60s linear infinite;z-index:-3;
+  }
+  @keyframes moveNebula{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-10%,-5%) scale(1.2)}100%{transform:translate(0,0) scale(1)}}
+
+  .stars{position:fixed;inset:0;z-index:-2;pointer-events:none}
+  .star{position:absolute;background:#fff;border-radius:50%;opacity:0.8;animation:twinkle 3s infinite ease-in-out}
+  @keyframes twinkle{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.3)}}
+
+  .back-btn{position:fixed;top:18px;left:22px;z-index:20;background:none;border:none;cursor:pointer;padding:6px;border-radius:50%;transition:transform .28s ease, filter .28s ease;}
+  .back-logo{width:60px;height:60px;border-radius:50%;box-shadow:0 0 10px rgba(var(--gold),0.28);display:block;transition:transform .3s ease,box-shadow .3s ease,filter .3s ease;}
+  .back-btn:hover .back-logo{ transform:scale(1.08) rotate(-10deg); box-shadow:0 0 26px rgba(var(--gold),0.55); filter:brightness(1.12) }
+
+  .members-container{display:flex;flex-direction:column;gap:40px;width:100%;max-width:1100px}
+  .row{display:flex;justify-content:center;gap:25px;flex-wrap:wrap}
+
+  .member{
+    position:relative;width:220px;height:280px;border-radius:20px;overflow:hidden;
+    background:rgba(20,20,20,0.92);
+    cursor:pointer;transition:transform .36s ease,box-shadow .36s ease;
+    box-shadow:0 6px 18px rgba(255,255,255,0.04);z-index:1;
+  }
+
+  .member img{
+    width:100%;height:100%;object-fit:cover;border-radius:20px;
+    transition:transform .36s ease,filter .36s ease, box-shadow .36s ease;
+    border:3px solid transparent;
+  }
+
+  .member[data-name="Phạm Nhật Minh"]:hover img {
+    box-shadow:0 0 20px 4px rgba(0,255,140,0.8);
+    border-color:rgba(0,255,140,0.6);
+    filter:brightness(1.15);
+  }
+  .member[data-name="Mai Kim Bảo"]:hover img {
+    box-shadow:0 0 20px 4px rgba(150,80,30,0.8);
+    border-color:rgba(150,80,30,0.6);
+    filter:brightness(1.15);
+  }
+  .member[data-name="Lương Xuân Thái"]:hover img {
+    box-shadow:0 0 20px 4px rgba(180,0,255,0.8);
+    border-color:rgba(180,0,255,0.6);
+    filter:brightness(1.15);
+  }
+  .member[data-name="Dương Gia Huy"]:hover img {
+    box-shadow:0 0 20px 4px rgba(0,180,255,0.8);
+    border-color:rgba(0,180,255,0.6);
+    filter:brightness(1.15);
+  }
+  .member[data-name="Bùi Văn Anh Thế"]:hover img {
+    box-shadow:0 0 20px 4px rgba(255,90,0,0.8);
+    border-color:rgba(255,90,0,0.6);
+    filter:brightness(1.15);
+  }
+
+  .preview{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:18px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.72));color:#fff;font-size:18px;opacity:0;transform:translateY(6px);transition:all .28s ease;pointer-events:none;}
+  .member:hover .preview{opacity:1;transform:translateY(0)}
+
+  .member::after{
+    content:"";position:absolute;inset:0;border-radius:20px;
+    background:radial-gradient(circle at center, rgba(0,179,255,0.28), transparent 60%);
+    opacity:0;transform:scale(.6);transition:opacity .3s, transform .6s;z-index:0;pointer-events:none;
+  }
+  .member.active::after{opacity:1;transform:scale(3);animation:pulse 1.2s ease-out forwards}
+  @keyframes pulse{0%{opacity:.9;transform:scale(.6)}100%{opacity:0;transform:scale(3)}}
+  .member.dimmed{opacity:.28;filter:blur(1px);transform:scale(.98)}
+
+  .member::before{
+    content:"";position:absolute;inset:0;border-radius:20px;opacity:0;
+    transform:scale(1);transition:opacity .5s ease, transform .8s ease;
+    z-index:0;pointer-events:none;mix-blend-mode:screen;
+  }
+  .member[data-name="Phạm Nhật Minh"]::before{background:radial-gradient(circle at center, rgba(0,255,140,0.35), rgba(0,40,10,0.0) 70%);}
+  .member[data-name="Mai Kim Bảo"]::before{background:radial-gradient(circle at center, rgba(120,70,20,0.4), rgba(25,10,0,0.0) 70%);}
+  .member[data-name="Lương Xuân Thái"]::before{background:radial-gradient(circle at center, rgba(180,0,255,0.35), rgba(40,0,60,0.0) 70%);}
+  .member[data-name="Dương Gia Huy"]::before{background:radial-gradient(circle at center, rgba(0,180,255,0.35), rgba(0,20,50,0.0) 70%);}
+  .member[data-name="Bùi Văn Anh Thế"]::before{background:radial-gradient(circle at center, rgba(255,90,0,0.35), rgba(40,10,0,0.0) 70%);}
+  .member:hover::before{opacity:1;transform:scale(1.5);}
+
+  .member.expanded{position:fixed;inset:0;width:100vw;height:100vh;border-radius:0;z-index:100;animation:expandFull .6s cubic-bezier(.2,.9,.2,1) forwards;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;}
+  @keyframes expandFull{0%{transform:scale(.4);opacity:0;}60%{transform:scale(1.03);}100%{transform:scale(1);opacity:1;}}
+  .member.expanded img{width:160px;height:160px;border-radius:50%;object-fit:cover;margin-bottom:20px;box-shadow:0 0 25px rgba(0,179,255,0.3);}
+  .details{max-width:800px;text-align:center;opacity:0;pointer-events:none;}
+  .member.expanded .details{opacity:1;pointer-events:auto;animation:fadeIn .9s ease .35s forwards}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .details h3{color:var(--accent);font-size:34px;margin:0 0 14px}
+  .details p{font-size:18px;line-height:1.6;margin:0 auto;max-width:700px}
+
+  .close-expanded{position:absolute;top:20px;right:28px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:15px;z-index:105;opacity:0;transform:translateY(-6px);transition:all .28s ease;}
+  .member.expanded .close-expanded{opacity:1;transform:none;animation:fadeIn .4s ease .5s forwards}
+  .close-expanded:hover{background:rgba(255,255,255,0.18);transform:scale(1.05)}
+
+  .visit-link{display:inline-block;margin-top:20px;padding:10px 20px;background:rgba(0,179,255,0.18);border:1px solid rgba(0,179,255,0.4);border-radius:12px;color:#00b3ff;font-weight:500;text-decoration:none;transition:all .25s ease;}
+  .visit-link:hover{background:rgba(0,179,255,0.35);transform:scale(1.05);color:#fff;}
+</style>
+</head>
+
+<body>
+<button class="back-btn" id="backLogo" title="Trở lại trang chính">
+  <img src="assets/logo.jpg" alt="Back Logo" class="back-logo">
+</button>
+
+<div class="nebula"></div>
+<div class="stars" id="stars"></div>
+
+<div class="members-container">
+  <div class="row">
+    <div class="member" data-name="Phạm Nhật Minh">
+      <img src="assets/anh1.jpg" alt="Minh">
+      <div class="preview">Minh</div>
+      <div class="details">
+        <h3>Phạm Nhật Minh</h3>
+        <p>Yêu thích lập trình web và thiết kế UI/UX. Tập trung tạo trải nghiệm mượt mà.</p>
+        <a href="file:///C:/Users/hoaho/Downloads/imposible/web%20b%C3%A1n%20h%C3%A0ng/CV_Minh/index.html" class="visit-link" target="_blank">Hiển thị thêm</a>
+      </div>
+    </div>
+    <div class="member" data-name="Mai Kim Bảo">
+      <img src="assets/anh3.jpg" alt="Bảo">
+      <div class="preview">Bảo</div>
+      <div class="details">
+        <h3>Mai Kim Bảo</h3>
+        <p>Front-end developer chuyên về animation và tối ưu trải nghiệm người dùng.</p>
+        <a href="bao.html" class="visit-link" target="_blank">Hiển thị thêm</a>
+      </div>
+    </div>
+    <div class="member" data-name="Lương Xuân Thái">
+      <img src="assets/anh2.jpg" alt="Thái">
+      <div class="preview">Thái</div>
+      <div class="details">
+        <h3>Lương Xuân Thái</h3>
+        <p>Lên ý tưởng và chỉnh sửa cho các animations & quá trình tạo của các trang web.</p>
+        <a href="thai.html" class="visit-link" target="_blank">Hiển thị thêm</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="member" data-name="Dương Gia Huy">
+      <img src="assets/anh4.jpg" alt="Huy">
+      <div class="preview">Huy</div>
+      <div class="details">
+        <h3>Dương Gia Huy</h3>
+        <p>Full-stack developer, kết hợp front và back để triển khai sản phẩm hoàn chỉnh.</p>
+        <a href="huy.html" class="visit-link" target="_blank">Hiển thị thêm</a>
+      </div>
+    </div>
+    <div class="member" data-name="Bùi Văn Anh Thế">
+      <img src="assets/anh5.jpg" alt="Thế">
+      <div class="preview">Thế</div>
+      <div class="details">
+        <h3>Bùi Văn Anh Thế</h3>
+        <p>Designer chịu trách nhiệm về UI/UX, màu sắc và trải nghiệm người dùng.</p>
+        <a href="the.html" class="visit-link" target="_blank">Hiển thị thêm</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function createStars(){
+  const starsContainer = document.getElementById('stars');
+  starsContainer.innerHTML = '';
+  for (let i = 0; i < 180; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.left = Math.random() * 100 + '%';
+    const size = (Math.random() * 1.6 + 0.6).toFixed(2);
+    s.style.width = s.style.height = size + 'px';
+    s.style.opacity = (0.2 + Math.random() * 0.85).toFixed(2);
+    s.style.animationDelay = (Math.random() * 3).toFixed(2) + 's';
+    starsContainer.appendChild(s);
+  }
+})();
+
+(() => {
+  const members = Array.from(document.querySelectorAll('.member'));
+  let expanded = null;
+  document.getElementById('backLogo').addEventListener('click', () => window.location.href = "Untitled-2.html");
+
+  function addCloseTo(el){
+    const existed = el.querySelector('.close-expanded');
+    if (existed) existed.remove();
+    const btn = document.createElement('button');
+    btn.className = 'close-expanded';
+    btn.textContent = '← Trở lại';
+    btn.addEventListener('click', ev => {ev.stopPropagation(); closeExpanded();});
+    el.appendChild(btn);
+  }
+
+  function openExpanded(m){
+    if (expanded === m) return;
+    members.forEach(x => x.classList.remove('expanded','dimmed','active'));
+    m.classList.add('active');
+    setTimeout(()=> m.classList.remove('active'), 1000);
+    m.classList.add('expanded');
+    expanded = m;
+    members.forEach(o => { if (o !== m) o.classList.add('dimmed'); });
+    addCloseTo(m);
+    document.documentElement.style.overflow = 'hidden';
+  }
+
+  function closeExpanded(){
+    if (!expanded) return;
+    const el = expanded;
+    const btn = el.querySelector('.close-expanded');
+    if (btn) btn.remove();
+    el.classList.remove('expanded');
+    members.forEach(o => o.classList.remove('dimmed'));
+    expanded = null;
+    document.documentElement.style.overflow = '';
+  }
+
+  members.forEach(m => {
+    m.addEventListener('click', e => {
+      e.stopPropagation();
+      if (expanded && expanded !== m){closeExpanded(); setTimeout(()=> openExpanded(m), 300);}
+      else if (!expanded){openExpanded(m);}
+    });
+  });
+  document.addEventListener('click', e => {if (expanded && !expanded.contains(e.target)) closeExpanded();});
+  document.addEventListener('keydown', e => {if (e.key === 'Escape') closeExpanded();});
+})();
+</script>
+</body>
+</html>

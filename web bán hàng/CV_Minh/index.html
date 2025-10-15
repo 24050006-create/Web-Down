@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV Cá Nhân - Phạm Nhật Minh</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      color: #00ff88;
+      background: radial-gradient(circle at top, #001a0e 0%, #000000 100%);
+      overflow-x: hidden;
+      position: relative;
+      min-height: 100vh;
+      cursor: none;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    #trainCanvas { z-index: -3; }
+    #leafCanvas { z-index: -2; }
+    #clickCanvas { z-index: -1; }
+
+    header {
+      text-align: center;
+      padding: 60px 20px 30px;
+      text-shadow: 0 0 15px #00ff88;
+    }
+
+    header h1 {
+      font-size: 2.8em;
+      color: #00ff99;
+      text-shadow: 0 0 25px #00ffcc, 0 0 45px #00ffaa;
+    }
+
+    header p {
+      color: #77ffc0;
+      margin-top: 10px;
+      text-shadow: 0 0 10px #00ffaa;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      width: 100%;
+      background: rgba(0, 30, 20, 0.7);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+      transition: 0.3s;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(0, 255, 136, 0.4);
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px rgba(0, 255, 150, 0.8);
+    }
+
+    .info img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      display: block;
+      margin: 0 auto 15px;
+      border: 2px solid #00ffaa;
+      box-shadow: 0 0 15px #00ffaa;
+    }
+
+    .info ul {
+      list-style: none;
+      text-align: left;
+      line-height: 1.9;
+    }
+
+    h2 {
+      color: #00ffaa;
+      margin-bottom: 10px;
+      text-align: center;
+      text-shadow: 0 0 15px #00ffaa;
+    }
+
+    footer {
+      text-align: center;
+      color: #00ffaa;
+      margin: 40px 0;
+      text-shadow: 0 0 10px #00ffaa;
+    }
+
+    a {
+      color: #00ffcc;
+      text-decoration: none;
+      font-weight: 600;
+      text-shadow: 0 0 10px #00ffcc;
+    }
+
+    a:hover {
+      text-shadow: 0 0 25px #00ffaa;
+    }
+
+    /* ===== CON TRỎ CÂY XANH ===== */
+    .leaf-cursor {
+      position: fixed;
+      width: 40px;
+      height: 40px;
+      pointer-events: none;
+      transform-origin: center;
+      transition: transform 0.1s linear;
+      z-index: 9999;
+      filter: drop-shadow(0 0 2px #47b2e3);
+      opacity: 0.9;
+    }
+
+    .leaf-cursor img {
+      width: 100%;
+      height: 100%;
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.03);
+      animation: leafSwing 2s ease-in-out infinite alternate;
+      filter: brightness(1.2) drop-shadow(0 0 5px rgba(0,255,170,0.4));
+    }
+
+    @keyframes leafSwing {
+      from { transform: rotate(-12deg); }
+      to { transform: rotate(12deg); }
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 2.2em; }
+      .card { padding: 18px; }
+    }
+    /* ===== NHÂN VẬT ANIME ===== */
+#anime-char {
+  position: absolute;
+  bottom: -5px;
+  right: 50px;
+  opacity: 0;
+  transform: scale(0.6) translateY(50px);
+  transition: all 0.6s ease-out;
+  pointer-events: none;
+}
+ /* kích cỡ nhân vật */
+#anime-char img {
+  width: 160px;
+  filter: drop-shadow(0 0 10px #00ffaa);
+  border-radius: 10px;
+}
+
+.info.card {
+  position: relative; /* để nhân vật nằm trong khung */
+  overflow: hidden;   /* tránh tràn ra ngoài */
+}
+
+#anime-char.show {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+/* ===== BỐ CỤC 2 CỘT CHO CÁC CARD ===== */
+.card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+/* Bên chữ */
+.card-content .text {
+  flex: 1;
+}
+
+/* Bên ảnh */
+.card-content .image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.card-content .image img {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+  transition: transform 0.4s ease;
+}
+
+.card-content .image img:hover {
+  transform: scale(1.05);
+}
+
+/* ZIGZAG XEN KẼ */
+.skills.card .card-content {
+  flex-direction: row; /* ảnh bên phải */
+}
+
+.hobby.card .card-content {
+  flex-direction: row-reverse; /* ảnh bên trái */
+}
+
+.career.card .card-content {
+  flex-direction: row; /* ảnh bên phải */
+}
+
+/* Đẹp hơn trên điện thoại */
+@media (max-width: 500px) {
+  .card-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  .card-content .image img {
+    max-width: 300px;
+  }
+}
+/* ===== NÚT QUAY LẠI ===== */
+#back-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 255, 136, 0.15);
+  color: #00ffaa;
+  border: 1px solid #00ffaa;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 600;
+  text-shadow: 0 0 8px #00ffaa;
+  box-shadow: 0 0 10px rgba(0,255,136,0.5);
+  cursor: pointer;
+  z-index: 999;
+  transition: all 0.25s ease;
+  font-family: "Poppins", sans-serif;
+}
+
+#back-btn:hover {
+  background: rgba(0, 255, 136, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #00ffaa;
+}
+
+/* ===== HIỆU ỨNG PIXEL NỔ ===== */
+.pixel {
+  position: fixed;
+  width: 6px;
+  height: 6px;
+  background: #00ffaa;
+  pointer-events: none;
+  opacity: 1;
+  z-index: 9999;
+  box-shadow: 0 0 6px #00ffaa;
+  transition: transform 1s ease-out, opacity 1s ease-out;
+}
+/* === NHÂN VẬT PIXEL DI CHUYỂN DƯỚI CÙNG === */
+#pixel-pet {
+  position: fixed;
+  bottom: 10px;
+  left: 50px;
+  z-index: 9999;
+  pointer-events: none;
+  transition: transform 0.5s linear;
+}
+
+#pixel-pet img {
+  height: 80px; /* chỉ đặt chiều cao để không bị méo */
+  width: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 10px #00ffaa);
+}
+
+  </style>
+</head>
+
+<body>
+  
+  <canvas id="trainCanvas"></canvas>
+  <canvas id="leafCanvas"></canvas>
+  <canvas id="clickCanvas"></canvas>
+
+  <div class="leaf-cursor">
+    <img src="zombie.gif" alt="Tree Cursor">
+  </div>
+
+  <header>
+    <h1>Phạm Nhật Minh</h1>
+    <p>Front-end Developer | UI Designer</p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  </header>
+  <button id="back-btn" onclick="goHome()">⬅ Back</button>
+
+
+  <main>
+    <section class="info card">
+      <img src="minh0.jpg" alt="Ảnh cá nhân" />
+      <ul>
+        <li><strong>Họ tên:</strong> Phạm Nhật Minh</li>
+        <li><strong>Quê quán:</strong> Bình Dương</li>
+        <li><strong>Email:</strong> 24050006@student.bdu.edu.vn</li>
+        <li><strong>Mạng xã hội:</strong> <a href="https://www.facebook.com/minh.pham.138039/" id="facebook-link" target="_blank">Facebook</a>
+
+</li>
+
+      </ul>
+      <!-- icon mèo -->
+      <div id="anime-char">
+    <img src="cat2.jpg" alt="mèo">
+  </div>
+    </section>
+
+    <section class="skills card">
+  <div class="card-content">
+    <div class="text">
+      <h2>Kỹ năng</h2>
+      <ul>
+        <li>HTML / CSS / JavaScript</li>
+        <li>ReactJS</li>
+        <li>UI/UX Design</li>
+        <li>Responsive Web</li>
+      </ul>
+    </div>
+    <div class="image">
+      <img src="minh3.png" alt="Ảnh kỹ năng">
+    </div>
+  </div>
+</section>
+
+<section class="hobby card">
+  <div class="card-content">
+    <div class="image">
+      <img src="minh2.png" alt="Ảnh sở thích">
+    </div>
+    <div class="text">
+      <h2>Sở thích</h2>
+      <p>Thiết kế web, nghe nhạc, chụp ảnh và chơi game.</p>
+    </div>
+  </div>
+</section>
+
+<section class="career card">
+  <div class="card-content">
+    <div class="text">
+      <h2>Định hướng nghề nghiệp</h2>
+      <p>Phát triển trở thành Front-end Developer chuyên nghiệp, làm việc trong môi trường sáng tạo.</p>
+    </div>
+    <div class="image">
+      <img src="minh1.png" alt="Ảnh nghề nghiệp">
+    </div>
+  </div>
+</section>
+
+
+  </main>
+
+  <footer>
+    <p>© 2025 - Phạm Nhật Minh | <a href="#" id="download-pdf">📄 Tải CV PDF</a></p>
+
+
+
+  </footer>
+
+  <script>
+    /* ===== LÁ RƠI ===== */
+    const canvas = document.getElementById("leafCanvas");
+    const ctx = canvas.getContext("2d");
+    const leafImages = [
+      "dinosaur.png",
+      "fullmoon.png",
+      "pixel.png",
+      "music.png"
+    ];
+
+    let leaves = [];
+    const leafCount = 25;
+    const leafImgs = [];
+
+    leafImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+      leafImgs.push(img);
+    });
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    function createLeaves() {
+      leaves = [];
+      for (let i = 0; i < leafCount; i++) {
+        leaves.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: 20 + Math.random() * 30,
+          speed: 0.5 + Math.random() * 1.5,
+          angle: Math.random() * 360,
+          rotationSpeed: 0.3 + Math.random() * 1.2,
+          img: leafImgs[Math.floor(Math.random() * leafImgs.length)]
+        });
+      }
+    }
+
+    function drawLeaves() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      leaves.forEach(leaf => {
+        ctx.save();
+        ctx.translate(leaf.x, leaf.y);
+        ctx.rotate((leaf.angle * Math.PI) / 180);
+        ctx.shadowColor = "#00ff99";
+        ctx.shadowBlur = 20;
+        ctx.drawImage(leaf.img, -leaf.size / 2, -leaf.size / 2, leaf.size, leaf.size);
+        ctx.restore();
+      });
+    }
+
+    function moveLeaves() {
+      leaves.forEach(leaf => {
+        leaf.y += leaf.speed;
+        leaf.angle += leaf.rotationSpeed;
+        if (leaf.y > canvas.height + 30) {
+          leaf.y = -30;
+          leaf.x = Math.random() * canvas.width;
+          leaf.img = leafImgs[Math.floor(Math.random() * leafImgs.length)];
+        }
+      });
+    }
+
+    function animate() {
+      drawLeaves();
+      moveLeaves();
+      requestAnimationFrame(animate);
+    }
+
+    Promise.all(leafImgs.map(img => new Promise(r => (img.onload = r)))).then(() => {
+      createLeaves();
+      animate();
+    });
+
+    /* ===== CON TRỎ CÂY XANH ===== */
+    const leafCursor = document.querySelector(".leaf-cursor");
+    document.addEventListener("mousemove", (e) => {
+      leafCursor.style.left = e.clientX + "px";
+      leafCursor.style.top = e.clientY + "px";
+    });
+
+    /* ===== HIỆU ỨNG CLICK MƯỢT ===== */
+    const clickCanvas = document.getElementById("clickCanvas");
+    const cctx = clickCanvas.getContext("2d");
+
+    function resizeClickCanvas() {
+      clickCanvas.width = window.innerWidth;
+      clickCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeClickCanvas);
+    resizeClickCanvas();
+
+    let bursts = [];
+    document.addEventListener("click", (e) => {
+      const particles = [];
+      for (let i = 0; i < 10; i++) {
+        const angle = (Math.PI * 2 * i) / 10;
+        particles.push({
+          x: e.clientX,
+          y: e.clientY,
+          r: 2 + Math.random() * 3,
+          vx: Math.cos(angle) * (2 + Math.random() * 2),
+          vy: Math.sin(angle) * (2 + Math.random() * 2),
+          life: 1,
+        });
+      }
+      bursts.push(particles);
+    });
+
+    function drawBursts() {
+      cctx.clearRect(0, 0, clickCanvas.width, clickCanvas.height);
+      bursts.forEach((particles) => {
+        particles.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 0.02;
+          cctx.beginPath();
+          const alpha = Math.max(p.life, 0);
+          cctx.fillStyle = `rgba(0,255,136,${alpha})`;
+          cctx.shadowColor = "#00ffaa";
+          cctx.shadowBlur = 10;
+          cctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          cctx.fill();
+        });
+      });
+      bursts = bursts.filter(p => p.some(pt => pt.life > 0));
+      requestAnimationFrame(drawBursts);
+    }
+    drawBursts();
+
+    /* ===== TÀU NEON ===== */
+    const trainCanvas = document.getElementById("trainCanvas");
+    const tctx = trainCanvas.getContext("2d");
+    trainCanvas.width = window.innerWidth;
+    trainCanvas.height = window.innerHeight;
+
+    let trains = [];
+    const trainImg = new Image();
+    trainImg.src = "train2.png";
+
+    function spawnTrain() {
+      const direction = Math.floor(Math.random() * 7);
+      const speed = 2 + Math.random() * 1;
+      let x, y, vx, vy;
+      switch (direction) {
+        case 0: x = -200; y = Math.random() * trainCanvas.height; vx = speed; vy = Math.random() * 1 - 0.5; break;
+        case 1: x = trainCanvas.width + 200; y = Math.random() * trainCanvas.height; vx = -speed; vy = Math.random() * 1 - 0.5; break;
+        case 2: x = Math.random() * trainCanvas.width; y = -200; vx = Math.random() * 1 - 0.5; vy = speed; break;
+        case 3: x = Math.random() * trainCanvas.width; y = trainCanvas.height + 200; vx = Math.random() * 1 - 0.5; vy = -speed; break;
+      }
+      trains.push({
+        x, y, vx, vy,
+        alpha: 0.5 + Math.random() * 0.3,
+        scale: 0.3 + Math.random() * 0.3,
+        rotation: Math.atan2(vy, vx),
+        waveOffset: Math.random() * 100
+      });
+    }
+
+    function drawTrains() {
+      tctx.clearRect(0, 0, trainCanvas.width, trainCanvas.height);
+      trains.forEach(train => {
+        tctx.save();
+        tctx.translate(train.x, train.y + Math.sin(train.x / 100 + train.waveOffset) * 10);
+        tctx.rotate(train.rotation);
+        tctx.globalAlpha = train.alpha;
+        tctx.shadowColor = "#00ffaa";
+        tctx.shadowBlur = 25;
+        tctx.drawImage(trainImg, -100 * train.scale, -40 * train.scale, 200 * train.scale, 80 * train.scale);
+        tctx.restore();
+      });
+    }
+
+    function moveTrains() {
+      trains.forEach(train => {
+        train.x += train.vx;
+        train.y += train.vy;
+      });
+      trains = trains.filter(t => t.x > -400 && t.x < trainCanvas.width + 400 && t.y > -400 && t.y < trainCanvas.height + 400);
+    }
+
+    /* ===== HIỆU ỨNG VỠ ICON ===== */
+    const debrisPieces = [];
+
+    function createDebris(x, y, color = "#00ffaa") {
+      for (let i = 0; i < 10; i++) {
+        debrisPieces.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          size: 2 + Math.random() * 3,
+          life: 1,
+          color,
+        });
+      }
+    }
+
+    function drawDebris() {
+      tctx.save();
+      debrisPieces.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.1;
+        p.life -= 0.02;
+
+        if (p.life > 0) {
+          tctx.beginPath();
+          tctx.globalAlpha = p.life;
+          tctx.fillStyle = p.color;
+          tctx.shadowColor = p.color;
+          tctx.shadowBlur = 10;
+          tctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          tctx.fill();
+        }
+      });
+      tctx.restore();
+
+      for (let i = debrisPieces.length - 1; i >= 0; i--) {
+        if (debrisPieces[i].life <= 0) debrisPieces.splice(i, 1);
+      }
+    }
+
+    function trainLoop() {
+      moveTrains();
+
+      // Va chạm giữa tàu và lá
+      trains.forEach(train => {
+        leaves.forEach((leaf, i) => {
+          const dx = leaf.x - train.x;
+          const dy = leaf.y - train.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 60) {
+            createDebris(leaf.x, leaf.y);
+            leaves.splice(i, 1);
+          }
+        });
+      });
+
+      tctx.clearRect(0, 0, trainCanvas.width, trainCanvas.height);
+      
+      drawTrains();
+      drawDebris();
+      requestAnimationFrame(trainLoop);
+    }
+
+    trainImg.onload = () => {
+      setInterval(spawnTrain, 4000);
+      trainLoop();
+    };
+  // ===== NHÂN VẬT ANIME =====
+const fb = document.getElementById("facebook-link");
+const anime = document.getElementById("anime-char");
+
+// Kiểm tra an toàn nếu phần tử tồn tại
+if (fb && anime) {
+  fb.addEventListener("mouseenter", () => {
+    anime.classList.add("show");
+  });
+
+  fb.addEventListener("mouseleave", () => {
+    anime.classList.remove("show");
+  });
+} else {
+  console.warn("Không tìm thấy #facebook-link hoặc #anime-char!");
+}
+/* ===== NÚT QUAY LẠI TRANG CHỦ VỚI HIỆU ỨNG PIXEL ===== */
+function goHome(e) {
+  const event = e || window.event;
+  const x = event ? event.clientX : 100;
+  const y = event ? event.clientY : 50;
+
+  // Hiệu ứng pixel xanh neon
+  for (let i = 0; i < 20; i++) {
+    const pixel = document.createElement("div");
+    pixel.className = "pixel";
+    pixel.style.left = x + "px";
+    pixel.style.top = y + "px";
+    document.body.appendChild(pixel);
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = 50 + Math.random() * 80;
+    pixel.style.transform = `translate(${Math.cos(angle)*distance}px, ${Math.sin(angle)*distance}px) scale(0)`;
+    pixel.style.opacity = 0;
+    setTimeout(() => pixel.remove(), 1000);
+  }
+
+  // Sau hiệu ứng → chuyển về trang chủ (đặt đường dẫn thật của bạn)
+  setTimeout(() => {
+    window.location.href = "file:///C:/Users/hoaho/Downloads/imposible/web%20b%C3%A1n%20h%C3%A0ng/member.html"; // 👈 đổi tên file tại đây
+  }, 600);
+}
+/* ===== TẢI CV PDF ===== */
+document.getElementById("download-pdf").addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  // Chỉ xuất phần CV chính, không lấy nền hiệu ứng động
+  const element = document.querySelector("main");
+
+  const opt = {
+    margin: [10, 10, 10, 10],
+    filename: "PhamNhatMinh_CV.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: {
+      scale: 3,         // Tăng độ nét
+      useCORS: true,    // Cho phép lấy ảnh từ cùng domain
+      backgroundColor: "#000" // Nếu nền trong suốt thì fill màu đen
+    },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+  };
+
+  // Tải thư viện html2pdf nếu chưa có
+  if (typeof html2pdf === "undefined") {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+    script.onload = () => html2pdf().set(opt).from(element).save();
+    document.body.appendChild(script);
+  } else {
+    html2pdf().set(opt).from(element).save();
+  }
+});
+
+// ===== PET RANDOM MOVE =====
+const pet = document.getElementById("pixel-pet");
+let direction = 1; // 1 = phải, -1 = trái
+let posX = 50; // vị trí ban đầu
+const speed = 4; // tốc độ di chuyển (px mỗi bước)
+const maxMove = window.innerWidth - 100; // giới hạn bên phải
+
+function movePet() {
+  // Random đổi hướng
+  if (Math.random() < 0.01) direction *= -1;
+
+  // Cập nhật vị trí
+  posX += direction * speed;
+
+  // Giữ trong khung hình
+  if (posX < 0) {
+    posX = 0;
+    direction = 1;
+  } else if (posX > maxMove) {
+    posX = maxMove;
+    direction = -1;
+  }
+
+  // Lật ảnh theo hướng
+  pet.style.transform = `translateX(${posX}px) scaleX(${direction})`;
+}
+
+// Di chuyển mỗi 60ms
+setInterval(movePet, 60);
+
+  </script>
+  <!-- === NHÂN VẬT PIXEL DI CHUYỂN === -->
+<div id="pixel-pet">
+  <img src="Evernight.gif" alt="Pixel Pet">
+</div>
+
+</body>
+</html>
